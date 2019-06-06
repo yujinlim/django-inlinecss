@@ -3,11 +3,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import urllib2
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.encoding import smart_text
+from django.core.files.storage import FileSystemStorage
 
 from django_inlinecss import conf
 
@@ -27,12 +29,19 @@ class InlineCssNode(template.Node):
             path = expression.resolve(context, True)
             if path is not None:
                 path = smart_text(path)
-            if settings.DEBUG:
-                expanded_path = finders.find(path)
-            else:
-                expanded_path = staticfiles_storage.path(path)
 
-            with open(expanded_path) as css_file:
+            expand_path = staticfiles_storage.path
+            open_path = open
+
+            if settings.DEBUG:
+                expand_path = finders.find
+
+            if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
+                expand_path = staticfiles_storage.url
+                open_path = urllib2.urlopen
+
+            expanded_path = expand_path(path)
+            with open_path(expanded_path) as css_file:
                 css = ''.join((css, css_file.read()))
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
