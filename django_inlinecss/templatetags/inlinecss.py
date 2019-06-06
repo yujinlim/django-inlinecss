@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import urllib2
+from urllib.request import urlopen
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -38,7 +38,7 @@ class InlineCssNode(template.Node):
 
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
                 expand_path = staticfiles_storage.url
-                open_path = urllib2.urlopen
+                open_path = urlopen
 
             expanded_path = expand_path(path)
             with open_path(expanded_path) as css_file:
