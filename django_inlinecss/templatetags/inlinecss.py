@@ -36,13 +36,12 @@ class InlineCssNode(template.Node):
                 expand_path = finders.find
 
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
-                css_file = staticfiles_storage.open(path)
+                with staticfiles_storage.open(path) as css_file:
+                    css = ''.join((css, css_file.read().decode('utf-8')))
             else:
                 expanded_path = expand_path(path)
-                css_file = open(expanded_path)
-
-            with css_file:
-                css = ''.join((css, css_file.read()))
+                with open(expanded_path) as css_file:
+                    css = ''.join((css, css_file.read()))
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
         return engine.render()
