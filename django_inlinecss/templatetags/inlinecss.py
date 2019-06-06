@@ -31,17 +31,17 @@ class InlineCssNode(template.Node):
                 path = smart_text(path)
 
             expand_path = staticfiles_storage.path
-            open_path = open
 
             if settings.DEBUG:
                 expand_path = finders.find
 
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
-                expand_path = staticfiles_storage.open
-                open_path = urlopen
+                css_file = staticfiles_storage.open(path)
+            else:
+                expanded_path = expand_path(path)
+                css_file = open(expanded_path)
 
-            expanded_path = expand_path(path)
-            with open_path(expanded_path) as css_file:
+            with css_file:
                 css = ''.join((css, css_file.read()))
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
