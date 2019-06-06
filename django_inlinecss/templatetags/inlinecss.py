@@ -37,7 +37,7 @@ class InlineCssNode(template.Node):
                 expand_path = finders.find
 
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
-                expand_path = staticfiles_storage.url
+                expand_path = staticfiles_storage.open
                 open_path = urlopen
 
             expanded_path = expand_path(path)
